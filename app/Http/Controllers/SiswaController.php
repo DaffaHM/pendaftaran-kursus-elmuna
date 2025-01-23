@@ -33,7 +33,10 @@ class SiswaController extends Controller
             'foto.mimes' => 'foto harus berupa png,jpg,jpeg',
             'foto.max' => 'foto tidak boleh lebih dari 1mb'
 
+
         ]);
+
+
 
         if ($request->hasFile('foto')) {
             $gambar = $request->file('foto');
@@ -52,5 +55,20 @@ class SiswaController extends Controller
         Siswa::create($data);
         sweetalert()->success('Anda,' . $request->nama . 'telah berhasil mendaftar!');
         return redirect('/pendaftaran');
+    }
+
+    function index(Request $request)
+    {
+        $cari = $request->cari;
+        $data = Siswa::where(function ($query) use ($cari) {
+            $query->where('nik', 'like', '%' . $cari . '%')
+                ->orWhere('nama', 'like', '%' . $cari . '%')
+                ->orWhere('nisn', 'like', '%' . $cari . '%')
+                ->orWhere('pekerjaan', 'like', '%' . $cari . '%');
+        })->orderBy('id', 'desc')
+            ->paginate(2)
+            ->withQueryString();
+
+        return view('siswa.index', ['data' => $data]);
     }
 }
