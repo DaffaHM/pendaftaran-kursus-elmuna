@@ -22,6 +22,10 @@ Route::middleware('auth')->group(function () {
 
     // route siswa
     Route::get('/siswa', [SiswaController::class, 'index']);
+    Route::get('/siswa/{id}/edit', [SiswaController::class, 'edit']);
+    Route::put('/edit-siswa/{id}', [SiswaController::class, 'update']);
+    Route::get('/siswa/{id}/hapus', [SiswaController::class, 'delete']);
+    Route::delete('/hapus-siswa/{id}', [SiswaController::class, 'destroy']);
 });
 
 

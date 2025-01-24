@@ -21,17 +21,17 @@ class SiswaController extends Controller
             'nama' => 'required',
             'jenis_kelamin' => 'required',
             'pekerjaan' => 'required',
-            'foto' => 'required|image|mimes:png,jpg,jpeg|max:1040'
+            'foto' => 'required|image|mimes:png,jpg,jpeg|max:10240'
         ], [
             'nik.required' => 'nik harus diisi',
-            'nik.min' => 'nik harus 16 digit',
+            'nik.min' => 'nik harus minimal :min digit',
             'nama.required' => 'nama harus diisi',
             'jenis_kelamin.required' => 'jenis kelamin harus diisi',
             'pekerjaan.required' => 'pekerjaan harus diisi',
             'foto.required' => 'foto harus diisi',
             'foto.image' => 'foto harus berupa gambar',
             'foto.mimes' => 'foto harus berupa png,jpg,jpeg',
-            'foto.max' => 'foto tidak boleh lebih dari 1mb'
+            'foto.max' => 'foto tidak boleh lebih dari :max mb'
 
 
         ]);
@@ -70,5 +70,78 @@ class SiswaController extends Controller
             ->withQueryString();
 
         return view('siswa.index', ['data' => $data]);
+    }
+
+    function edit(Request $request, $id)
+    {
+        $data = Siswa::findOrFail($id);
+
+        return view('siswa.edit', ['data' => $data]);
+    }
+
+    function update(Request $request, $id)
+    {
+        $request->validate([
+            'nik' => 'required | min:16',
+            'nama' => 'required',
+            'jenis_kelamin' => 'required',
+            'pekerjaan' => 'required',
+            'foto' => 'image|mimes:png,jpg,jpeg|max:10240'
+        ], [
+            'nik.required' => 'nik harus diisi',
+            'nik.min' => 'nik harus minimal :min digit',
+            'nama.required' => 'nama harus diisi',
+            'jenis_kelamin.required' => 'jenis kelamin harus diisi',
+            'pekerjaan.required' => 'pekerjaan harus diisi',
+            'foto.image' => 'foto harus berupa gambar',
+            'foto.mimes' => 'foto harus berupa png,jpg,jpeg',
+            'foto.max' => 'foto tidak boleh lebih dari :max mb'
+
+        ]);
+
+        $siswa = Siswa::findOrFail($id);
+
+        if ($request->hasFile('foto')) {
+            if (isset($siswa->foto) && file_exists(public_path('foto') . '/' . $siswa->foto)) {
+                unlink(public_path('foto') . '/' . $siswa->foto);
+            }
+
+            $gambar = $request->file('foto');
+            $namaGambar = time() . '.' . $gambar->getClientOriginalName();
+            $lokasi = public_path('foto');
+            $gambar->move($lokasi, $namaGambar);
+        }
+        $data = [
+            'nik' => $request->nik,
+            'nama' => $request->nama,
+            'nisn' => $request->nisn,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'pekerjaan' => $request->pekerjaan,
+            'foto' => isset($namaGambar) ? $namaGambar : $siswa->foto,
+        ];
+
+        $siswa->update($data);
+        sweetalert()->success('data siswa berhasil diubah');
+        return redirect('/siswa');
+    }
+
+    function delete($id)
+    {
+        $data = Siswa::findOrFail($id);
+
+        return view('siswa.hapus', ['data' => $data]);
+    }
+
+    function destroy($id)
+    {
+        $siswa = Siswa::findOrFail($id);
+
+        if (isset($siswa->foto) && file_exists(public_path('foto') . '/' . $siswa->foto)) {
+            unlink(public_path('foto') . '/' . $siswa->foto);
+        }
+
+        $siswa->delete();
+        sweetalert()->success('data siswa berhasil dihapus');
+        return redirect('/siswa');
     }
 }

@@ -39,8 +39,8 @@
                             <img src="{{ asset('foto/' . $value->foto) }}" alt="" width="50%">
                         </td>
                         <td>
-                            <a href="" class="btn btn-warning my-3">Edit</a>
-                            <a href="" class="btn btn-danger my-3">Hapus</a>
+                            <a href="{{ url('/siswa/' . $value->id . '/edit') }}" class="btn btn-warning my-3">Edit</a>
+                            <a href="{{ url('/siswa/' . $value->id . '/hapus') }}" class="btn btn-danger my-3">Hapus</a>
                         </td>
                     </tr>
                 @endforeach
